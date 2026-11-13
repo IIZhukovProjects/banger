@@ -9,7 +9,7 @@ from urllib.parse import quote, urlsplit
 import httpx
 from PIL import Image, ImageDraw, UnidentifiedImageError
 
-from image_prompt import sticker_prompt
+from image_prompt import grok_image_prompt, sticker_prompt
 
 
 class ProviderRejected(Exception):
@@ -29,7 +29,10 @@ class ProviderResult:
     image: bytes | None = None
 
 
-def inspect_image(raw):
+OPAQUE_IMAGE_MODELS = frozenset({"x-ai/grok-imagine-image"})
+
+
+def inspect_image(raw, *, model=None):
     if len(raw) > 10485760:
         raise ProviderRejected(
             "invalid_image", "Изображение превышает допустимый размер"
@@ -40,7 +43,10 @@ def inspect_image(raw):
                 raise ProviderRejected("invalid_image", "Неверный размер изображения")
             image.load()
             rgba = image.convert("RGBA")
-            if rgba.getchannel("A").getextrema()[0] == 255:
+            if (
+                model not in OPAQUE_IMAGE_MODELS
+                and rgba.getchannel("A").getextrema()[0] == 255
+            ):
                 raise ProviderRejected(
                     "invalid_image", "Провайдер вернул непрозрачное изображение"
                 )
@@ -220,19 +226,26 @@ class PolzaProvider:
             return ProviderResult(image=bytes(body))
 
     async def submit(self, prompt, model, *, base_url=None):
+        if model in OPAQUE_IMAGE_MODELS:
+            image_input = {
+                "prompt": grok_image_prompt(prompt),
+                "aspect_ratio": "1:1",
+            }
+        else:
+            image_input = {
+                "prompt": sticker_prompt(prompt),
+                "aspect_ratio": "1:1",
+                "quality": "medium",
+                "background": "transparent",
+                "output_format": "png",
+            }
         response = await self.client.post(
             self.media_url(base_url, "media"),
             headers=self.auth_headers,
             json={
                 "model": model,
                 "async": True,
-                "input": {
-                    "prompt": sticker_prompt(prompt),
-                    "aspect_ratio": "1:1",
-                    "quality": "medium",
-                    "background": "transparent",
-                    "output_format": "png",
-                },
+                "input": image_input,
             },
         )
         return await self.result(self.checked(response))

@@ -81,7 +81,9 @@ class ImageService:
                 next_attempt=time.time() + 1,
             )
             return
-        raw, width, height = await asyncio.to_thread(inspect_image, result.image)
+        raw, width, height = await asyncio.to_thread(
+            inspect_image, result.image, model=job["model"]
+        )
         key = "generated/" + job["id"] + ".png"
         await self.storage.put(key, raw, "image/png")
         artifact = {

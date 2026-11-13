@@ -1,8 +1,10 @@
+import io
 import json
 from types import SimpleNamespace
 import unittest
 
 import httpx
+from PIL import Image
 from pydantic import SecretStr
 
 from providers import FakeProvider, PolzaProvider, ProviderRejected, inspect_image
@@ -17,6 +19,37 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         png, width, height = inspect_image(first.image)
         self.assertEqual((width, height), (512, 512))
         self.assertTrue(png.startswith(b"\x89PNG"))
+
+    def test_grok_opaque_image_is_accepted_and_converted_to_png(self):
+        stream = io.BytesIO()
+        Image.new("RGB", (32, 32), "orange").save(stream, "JPEG")
+        raw = stream.getvalue()
+        png, width, height = inspect_image(raw, model="x-ai/grok-imagine-image")
+        self.assertTrue(png.startswith(b"\x89PNG"))
+        self.assertEqual((width, height), (32, 32))
+        with self.assertRaises(ProviderRejected):
+            inspect_image(raw, model="openai/gpt-image-1.5")
+
+    async def test_grok_sends_subject_and_visual_style(self):
+        def handler(request):
+            payload = json.loads(request.content)
+            self.assertEqual(payload["model"], "x-ai/grok-imagine-image")
+            image_input = payload["input"]
+            self.assertEqual(set(image_input), {"prompt", "aspect_ratio"})
+            self.assertTrue(image_input["prompt"].startswith("Рыжий кот в синей шляпе."))
+            self.assertNotIn("пати-игры", image_input["prompt"])
+            return httpx.Response(200, json={"id": "job", "status": "pending"})
+
+        settings = SimpleNamespace(
+            image_provider_base_url="https://polza.ai/api/v1",
+            polza_api_origin="",
+            polza_api_key=SecretStr("test-key"),
+        )
+        provider = PolzaProvider(settings, transport=httpx.MockTransport(handler))
+        try:
+            await provider.submit("Рыжий кот в синей шляпе", "x-ai/grok-imagine-image")
+        finally:
+            await provider.close()
 
     async def test_polza_submit_poll_and_safe_download_do_not_leak_bearer(self):
         png = (await FakeProvider().submit("test", "unused")).image
