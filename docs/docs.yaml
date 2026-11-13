@@ -1,0 +1,10 @@
+docs:
+  overview:
+    name: Об игре
+    path: index.md
+  architecture:
+    name: Архитектура
+    path: architecture.md
+  operations:
+    name: Эксплуатация
+    path: operations.md
