@@ -3,19 +3,26 @@ kind: Ingress
 ingress:
   environments:
     local:
-      - hostname: localhost
-        tls: disabled
-        routes:
-          - pathPrefix: /api/
-            target: backend
-          - pathPrefix: /
-            target: frontend
-    test: []
+    - hostname: localhost
+      tls: disabled
+      routes:
+      - pathPrefix: /api/
+        target: backend
+      - pathPrefix: /
+        target: frontend
+    test:
+    - hostname: banger.test.example.com
+      tls: disabled
+      routes:
+      - pathPrefix: /api/
+        target: backend
+      - pathPrefix: /
+        target: frontend
     prod:
-      - hostname: banger.example.com
-        tls: automatic
-        routes:
-          - pathPrefix: /api/
-            target: backend
-          - pathPrefix: /
-            target: frontend
+    - hostname: banger.example.com
+      tls: automatic
+      routes:
+      - pathPrefix: /api/
+        target: backend
+      - pathPrefix: /
+        target: frontend
