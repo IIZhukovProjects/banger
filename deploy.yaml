@@ -10,7 +10,16 @@ deployment:
         placement:
           machines: 1
           datacenters: 1
-      workloads: {}
+        resources:
+          cpuCores: 0.5
+          memoryMiB: 512
+          diskMiB: 1024
+      workloads:
+        frontend:
+          resources:
+            cpuCores: 0.25
+            memoryMiB: 128
+            diskMiB: 256
     prod:
       enabled: false
       strategy: rolling
@@ -19,7 +28,16 @@ deployment:
         placement:
           machines: 2
           datacenters: 2
+        resources:
+          cpuCores: 0.5
+          memoryMiB: 512
+          diskMiB: 1024
       workloads:
+        frontend:
+          resources:
+            cpuCores: 0.25
+            memoryMiB: 128
+            diskMiB: 256
         llm:
           instances: 1
           placement:
