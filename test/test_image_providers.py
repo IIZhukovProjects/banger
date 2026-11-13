@@ -1,8 +1,10 @@
+import io
 import json
 from types import SimpleNamespace
 import unittest
 
 import httpx
+from PIL import Image
 from pydantic import SecretStr
 
 from providers import FakeProvider, PolzaProvider, ProviderRejected, inspect_image
@@ -17,6 +19,45 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         png, width, height = inspect_image(first.image)
         self.assertEqual((width, height), (512, 512))
         self.assertTrue(png.startswith(b"\x89PNG"))
+
+    def test_image_conversion_preserves_background_and_transparency(self):
+        for color in ((255, 150, 0, 255), (0, 0, 0, 0), (255, 150, 0, 100)):
+            with self.subTest(alpha=color[-1]):
+                source = Image.new("RGBA", (32, 32), color)
+                stream = io.BytesIO()
+                source.save(stream, "PNG")
+                png, width, height = inspect_image(stream.getvalue())
+                self.assertEqual((width, height), (32, 32))
+                with Image.open(io.BytesIO(png)) as result:
+                    self.assertEqual(result.format, "PNG")
+                    self.assertEqual(result.getpixel((0, 0)), color)
+
+        stream = io.BytesIO()
+        Image.new("RGB", (32, 32), "orange").save(stream, "JPEG")
+        png, _, _ = inspect_image(stream.getvalue())
+        with Image.open(io.BytesIO(png)) as result:
+            self.assertEqual(result.getpixel((0, 0))[-1], 255)
+
+    async def test_grok_sends_subject_and_visual_style(self):
+        def handler(request):
+            payload = json.loads(request.content)
+            self.assertEqual(payload["model"], "x-ai/grok-imagine-image")
+            image_input = payload["input"]
+            self.assertEqual(set(image_input), {"prompt", "aspect_ratio"})
+            self.assertTrue(image_input["prompt"].startswith("Рыжий кот в синей шляпе."))
+            self.assertNotIn("пати-игры", image_input["prompt"])
+            return httpx.Response(200, json={"id": "job", "status": "pending"})
+
+        settings = SimpleNamespace(
+            image_provider_base_url="https://polza.ai/api/v1",
+            polza_api_origin="",
+            polza_api_key=SecretStr("test-key"),
+        )
+        provider = PolzaProvider(settings, transport=httpx.MockTransport(handler))
+        try:
+            await provider.submit("Рыжий кот в синей шляпе", "x-ai/grok-imagine-image")
+        finally:
+            await provider.close()
 
     async def test_polza_submit_poll_and_safe_download_do_not_leak_bearer(self):
         png = (await FakeProvider().submit("test", "unused")).image
@@ -33,9 +74,10 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(request.url.host, "provider.example")
             if request.method == "POST":
                 self.assertEqual(request.url.path, "/api/custom/media")
-                self.assertEqual(
-                    json.loads(request.content)["model"], "custom/image-v2"
-                )
+                payload = json.loads(request.content)
+                self.assertEqual(payload["model"], "custom/image-v2")
+                self.assertNotIn("background", payload["input"])
+                self.assertNotIn("прозрач", payload["input"]["prompt"])
                 return httpx.Response(
                     200, json={"id": "provider-operation", "status": "pending"}
                 )

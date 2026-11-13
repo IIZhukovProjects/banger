@@ -9,7 +9,7 @@ from urllib.parse import quote, urlsplit
 import httpx
 from PIL import Image, ImageDraw, UnidentifiedImageError
 
-from image_prompt import sticker_prompt
+from image_prompt import grok_image_prompt, sticker_prompt
 
 
 class ProviderRejected(Exception):
@@ -40,10 +40,6 @@ def inspect_image(raw):
                 raise ProviderRejected("invalid_image", "Неверный размер изображения")
             image.load()
             rgba = image.convert("RGBA")
-            if rgba.getchannel("A").getextrema()[0] == 255:
-                raise ProviderRejected(
-                    "invalid_image", "Провайдер вернул непрозрачное изображение"
-                )
             output = io.BytesIO()
             rgba.save(output, "PNG")
             png = output.getvalue()
@@ -220,19 +216,25 @@ class PolzaProvider:
             return ProviderResult(image=bytes(body))
 
     async def submit(self, prompt, model, *, base_url=None):
+        if model == "x-ai/grok-imagine-image":
+            image_input = {
+                "prompt": grok_image_prompt(prompt),
+                "aspect_ratio": "1:1",
+            }
+        else:
+            image_input = {
+                "prompt": sticker_prompt(prompt),
+                "aspect_ratio": "1:1",
+                "quality": "medium",
+                "output_format": "png",
+            }
         response = await self.client.post(
             self.media_url(base_url, "media"),
             headers=self.auth_headers,
             json={
                 "model": model,
                 "async": True,
-                "input": {
-                    "prompt": sticker_prompt(prompt),
-                    "aspect_ratio": "1:1",
-                    "quality": "medium",
-                    "background": "transparent",
-                    "output_format": "png",
-                },
+                "input": image_input,
             },
         )
         return await self.result(self.checked(response))
