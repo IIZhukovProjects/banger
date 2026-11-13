@@ -16,10 +16,16 @@ deployment:
           diskMiB: 512
       workloads:
         backend:
-          instances: 4
+          instances: 2
+          resources:
+            memoryMiB: 112
         llm:
           resources:
             memoryMiB: 160
+          instances: 1
+          placement:
+            machines: 1
+            datacenters: 1
         frontend:
           resources:
             cpuCores: 0.05
