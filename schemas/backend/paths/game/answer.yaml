@@ -1,0 +1,37 @@
+post:
+  operationId: submitAnswer
+  tags: [game]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            text: {type: string, default: '', maxLength: 240}
+            image:
+              type: [string, 'null']
+            power: {type: boolean, default: false}
+            round_id: {type: string}
+          required: [round_id]
+          additionalProperties: false
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: {const: true}
+            required: [ok]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

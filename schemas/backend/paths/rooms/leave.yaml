@@ -1,0 +1,23 @@
+post:
+  operationId: leaveRoom
+  tags: [rooms]
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: {const: true}
+            required: [ok]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

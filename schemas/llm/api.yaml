@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info:
+  title: Banger internal image jobs
+  version: 0.1.0
+  description: Проект внутреннего API. Адрес задается LLM_URL, без публичного ingress. При повторном ключе с другим
+    нормализованным телом возвращается 409.
+paths:
+  /internal/v1/image-jobs: {$ref: ./paths/image_jobs/collection.yaml}
+  /internal/v1/image-jobs/{jobId}: {$ref: ./paths/image_jobs/item.yaml}

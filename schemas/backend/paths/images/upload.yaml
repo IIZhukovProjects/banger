@@ -1,0 +1,32 @@
+post:
+  operationId: uploadImage
+  tags: [images]
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required: [file]
+          properties:
+            file: {type: string, format: binary}
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              url: {type: string}
+            required: [url]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

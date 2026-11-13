@@ -1,0 +1,28 @@
+get:
+  operationId: getState
+  tags: [game]
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              phase: {type: string}
+              players:
+                type: array
+                items: {type: object}
+              room_code: {type: string}
+              room_name: {type: string}
+            required: [phase, players, room_code, room_name]
+            additionalProperties: true
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

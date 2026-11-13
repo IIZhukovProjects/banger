@@ -1,0 +1,19 @@
+{
+  "name": "banger-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "qrcode-generator": "1.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.0"
+  }
+}

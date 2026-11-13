@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info: {title: Banger game API, version: 0.1.0}
+paths:
+  /api/rooms: {$ref: ./paths/rooms/collection.yaml}
+  /api/rooms/{code}: {$ref: ./paths/rooms/item.yaml}
+  /api/meta: {$ref: ./paths/metadata/meta.yaml}
+  /api/state: {$ref: ./paths/game/state.yaml}
+  /api/join: {$ref: ./paths/rooms/join.yaml}
+  /api/leave: {$ref: ./paths/rooms/leave.yaml}
+  /api/settings: {$ref: ./paths/rooms/settings.yaml}
+  /api/bots: {$ref: ./paths/rooms/players/bots.yaml}
+  /api/start: {$ref: ./paths/game/start.yaml}
+  /api/next: {$ref: ./paths/game/next.yaml}
+  /api/lobby: {$ref: ./paths/game/lobby.yaml}
+  /api/answer: {$ref: ./paths/game/answer.yaml}
+  /api/vote: {$ref: ./paths/game/vote.yaml}
+  /api/generate: {$ref: ./paths/game/images/generate.yaml}
+  /api/players/{player_id}: {$ref: ./paths/rooms/players/item.yaml}
+  /api/upload: {$ref: ./paths/images/upload.yaml}
+  /api/health: {$ref: ./paths/metadata/health.yaml}
+  /api/uploads/{path}: {$ref: ./paths/images/download.yaml}

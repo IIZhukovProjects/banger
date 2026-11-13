@@ -1,0 +1,4 @@
+codegen:
+  distribution: platform-codegen
+  version: 0.2.0.dev9
+  contentSha256: b93e385431bdb8371f9c3736c41ea94ad68306902741fd30145b253ae2556064

@@ -1,0 +1,15 @@
+get:
+  operationId: downloadImage
+  tags: [images]
+  parameters:
+    - name: path
+      in: path
+      required: true
+      x-codegen-catch-all: true
+      schema: {type: string}
+  responses:
+    '200':
+      description: Image bytes
+      content:
+        application/octet-stream:
+          schema: {type: string, format: binary}

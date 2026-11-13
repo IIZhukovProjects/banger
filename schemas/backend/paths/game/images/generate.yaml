@@ -1,0 +1,35 @@
+post:
+  operationId: generateImage
+  tags: [game.images]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            text: {type: string, minLength: 3, maxLength: 240}
+            round_id: {type: string}
+            power: {type: boolean, default: false}
+          required: [text, round_id]
+          additionalProperties: false
+  responses:
+    '202':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accepted: {const: true}
+            required: [accepted]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

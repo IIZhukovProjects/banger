@@ -1,0 +1,1 @@
+{"roomsAuthorityPrivacyScoring": true, "s3UploadsAndRoomIsolation": true, "backendToLlmDurableFakeImages": true, "llmIdempotencyAndConflict": true}

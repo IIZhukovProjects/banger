@@ -1,0 +1,36 @@
+post:
+  operationId: submitVote
+  tags: [game]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            answer: {type: string}
+            block:
+              type: [string, 'null']
+            round_id: {type: string}
+          required: [answer, round_id]
+          additionalProperties: false
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: {const: true}
+            required: [ok]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

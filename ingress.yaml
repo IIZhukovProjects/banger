@@ -1,0 +1,21 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Ingress
+ingress:
+  environments:
+    local:
+      - hostname: localhost
+        tls: disabled
+        routes:
+          - pathPrefix: /api/
+            target: backend
+          - pathPrefix: /
+            target: frontend
+    test: []
+    prod:
+      - hostname: banger.example.com
+        tls: automatic
+        routes:
+          - pathPrefix: /api/
+            target: backend
+          - pathPrefix: /
+            target: frontend

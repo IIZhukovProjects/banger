@@ -1,0 +1,23 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Config
+config:
+  classes:
+    ImageGenerationConfig:
+      key: image-generation
+      description: Провайдер, адрес и модель для новых заданий генерации изображений
+      fields:
+        provider:
+          type: str
+          nullable: true
+          enum: [null, fake, polza]
+          default: null
+        base_url:
+          type: str
+          default: https://polza.ai/api/v1
+          max_length: 2048
+          pattern: '^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$'
+        model:
+          type: str
+          default: openai/gpt-image-1.5
+          min_length: 1
+          max_length: 200

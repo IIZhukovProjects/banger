@@ -1,0 +1,37 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Infrastructure
+infrastructure:
+  modes:
+    local:
+      resourceProvider: docker
+      observabilityEnabled: true
+      ports:
+        postgres: 15432
+        s3: 19000
+        grafana: 13000
+        otlp_http: 14318
+        otlp_grpc: 14317
+    platform:
+      resourceProvider: platform
+      observabilityEnabled: true
+
+  resources:
+    postgres:
+      kind: postgresql-cluster
+      version: '17'
+      availability: single
+      databases:
+        game:
+          name: banger_game
+        llm:
+          name: banger_llm
+      backups: required
+    s3:
+      kind: s3-bucket
+      visibility: private
+      backups: required
+
+  observability:
+    provider: platform
+    signals: [logs, metrics, traces]
+    credentials: workload

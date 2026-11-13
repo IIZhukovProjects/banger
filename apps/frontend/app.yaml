@@ -1,0 +1,18 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: App
+app:
+  name: frontend
+  version: 0.1.0
+  description: "Экран телевизора, телефонные контроллеры и каталог комнат Banger"
+  active: true
+  type: static-web
+  node:
+    major: 22
+  build:
+    install: [npm, ci]
+    command: [npm, run, build]
+    output: dist
+  server:
+    nginx:
+      port: 8080
+      spa: true

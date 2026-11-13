@@ -1,0 +1,14 @@
+get:
+  operationId: getHealth
+  tags: [metadata]
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: {const: ok}
+            required: [status]
+            additionalProperties: false

@@ -1,0 +1,7 @@
+{
+  "modes": 16,
+  "prompts": 118,
+  "powers": 5,
+  "runtimeCatalogFromDatabase": true,
+  "seedDataExcludedFromImageContext": true
+}

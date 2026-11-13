@@ -1,0 +1,27 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Deployment
+deployment:
+  environments:
+    test:
+      enabled: false
+      strategy: rolling
+      defaults:
+        instances: 1
+        placement:
+          machines: 1
+          datacenters: 1
+      workloads: {}
+    prod:
+      enabled: false
+      strategy: rolling
+      defaults:
+        instances: 2
+        placement:
+          machines: 2
+          datacenters: 2
+      workloads:
+        llm:
+          instances: 1
+          placement:
+            machines: 1
+            datacenters: 1

@@ -1,0 +1,924 @@
+.room-hub {
+  min-height: 100dvh;
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+.hub-header {
+  height: 72px;
+  margin: 0;
+  padding: 0 clamp(20px, 4vw, 64px);
+  border-bottom: 1px solid #ffffff18;
+  gap: 18px;
+}
+.hub-tag {
+  font:
+    700 10px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  color: #baa3cd;
+}
+.hub-main {
+  width: min(100%, 1376px);
+  margin: 0 auto;
+  padding: 30px clamp(18px, 3vw, 44px) 40px;
+}
+.hub-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--lime);
+  color: var(--ink);
+  border: 1px solid #ecff93;
+  border-radius: 26px;
+  padding: 27px 34px;
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 6px #140a20;
+}
+.hub-intro > div {
+  position: relative;
+  z-index: 2;
+}
+.hub-intro .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+.hub-intro h1 {
+  font-size: clamp(48px, 5vw, 76px);
+  line-height: 0.82;
+  letter-spacing: -0.075em;
+  margin: 20px 0 15px;
+  transform: rotate(-2deg);
+}
+.hub-intro h1 > span {
+  color: #6a3686;
+}
+.hub-intro p {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+}
+.hub-intro img {
+  position: absolute;
+  right: 6%;
+  width: 50%;
+  height: 115%;
+  top: -7%;
+  object-fit: contain;
+  mask-image: radial-gradient(ellipse at center, black 42%, transparent 72%);
+  pointer-events: none;
+}
+.hub-intro-stamp {
+  position: absolute;
+  right: 25px;
+  bottom: 18px;
+  font:
+    850 9px/1.3 ui-monospace,
+    monospace;
+  letter-spacing: 0.1em;
+}
+.hub-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  gap: 24px;
+  margin-top: 25px;
+  align-items: start;
+}
+.hub-form-card {
+  min-width: 0;
+  border: 1px solid #e9d3fc;
+  border-radius: 24px;
+  background: #f2e6fa;
+  color: var(--ink);
+  overflow: hidden;
+  box-shadow: 0 5px #140a20;
+}
+.hub-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 8px;
+  background: #dac5ed;
+  border-bottom: 1px solid #48295e26;
+  gap: 5px;
+}
+.hub-tabs button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  padding: 12px 7px;
+  font-size: 14px;
+  border-radius: 13px;
+  color: #6a4e7d;
+  min-width: 0;
+}
+.hub-tabs button[aria-pressed="true"] {
+  background: #fff5df;
+  color: #301a42;
+  border-color: #9672aa;
+  box-shadow: 0 2px #9270a84a;
+}
+.hub-form-heading {
+  padding: 25px 26px 0;
+}
+.hub-form-heading .eyebrow {
+  font-size: 9px;
+  color: #78568e;
+}
+.hub-form-heading h2 {
+  font-size: 36px;
+  letter-spacing: -0.065em;
+  line-height: 1;
+  margin: 7px 0 0;
+}
+.hub-form-card > .game-setup {
+  padding: 23px 26px;
+}
+.hub-error {
+  margin: 18px 20px 0;
+  background: #ffd3e2;
+  color: #602441;
+  border: 1px solid #c77995;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.game-setup {
+  display: grid;
+  gap: 22px;
+}
+.game-setup label {
+  font-size: 13px;
+  font-weight: 750;
+  color: #3d2551;
+}
+.game-setup .setup-name input {
+  font-size: 16px;
+  background: #fffaf0;
+  border: 1px solid #bba4ca;
+  box-shadow: none;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+.setup-fieldset {
+  border: 0;
+  border-top: 1px solid #9c7ab33c;
+  margin: 0;
+  padding: 15px 0 0;
+  min-inline-size: 0;
+}
+.setup-fieldset legend {
+  padding: 0 10px 0 0;
+  font-size: 15px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  color: #3d2551;
+}
+.setup-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  margin-right: 8px;
+  background: #d6c1ed;
+  border: 1px solid #a382bd;
+  border-radius: 7px;
+  font:
+    800 10px ui-monospace,
+    monospace;
+}
+.seat-choices {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.game-setup .seat-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 49px;
+  min-height: 62px;
+  padding: 9px 11px;
+  background: #fff6e8;
+  border: 1px solid #bda2cd;
+  border-radius: 12px;
+  box-shadow: 0 2px #a181b038;
+  color: #53366b;
+  font-weight: 700;
+}
+.game-setup .seat-choice b {
+  font-size: 20px;
+  line-height: 1;
+}
+.game-setup .seat-choice svg {
+  opacity: 0.7;
+}
+.game-setup .seat-choice[aria-pressed="true"] {
+  background: var(--lime);
+  color: #2f253b;
+  border-color: #6f7f3c;
+  box-shadow: 0 2px #72853e6b;
+}
+.game-setup .seat-infinity {
+  min-width: 78px;
+}
+.game-setup .seat-infinity b {
+  font-size: 26px;
+}
+.game-setup .seat-infinity small {
+  font-size: 9px;
+  line-height: 1;
+}
+.game-setup .seat-custom {
+  align-self: stretch;
+  border: 1px dashed #a182b4;
+  box-shadow: none;
+  background: #e8d9f2;
+  color: #76528e;
+  border-radius: 12px;
+  font-size: 11px;
+  padding: 10px;
+}
+.game-setup .seat-custom[aria-pressed="true"] {
+  background: var(--lav);
+  color: #33213f;
+  border-style: solid;
+}
+.game-setup .custom-seats {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.game-setup .custom-seats input {
+  width: 100px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #bca4ca;
+  background: #fffaf0;
+  box-shadow: none;
+  font-size: 16px;
+}
+.setup-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #81638e;
+  margin: 9px 0 0;
+}
+.round-choice {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-wrap: wrap;
+}
+.round-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid #b59ac5;
+  border-radius: 13px;
+  background: #fff7e9;
+  overflow: hidden;
+}
+.game-setup .round-control button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 12px;
+  color: #624573;
+}
+.round-control output {
+  min-width: 34px;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 850;
+  color: #372046;
+}
+.round-shortcuts {
+  display: flex;
+  gap: 5px;
+}
+.game-setup .round-shortcuts button {
+  border: 1px solid #bca2cd;
+  border-radius: 9px;
+  padding: 8px 10px;
+  box-shadow: none;
+  background: #eadcf3;
+  color: #735184;
+  font-size: 13px;
+}
+.game-setup .round-shortcuts button[aria-pressed="true"] {
+  background: #5b3676;
+  color: #fff5e4;
+  border-color: #5b3676;
+}
+.game-type-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.game-setup .game-type-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  min-width: 0;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid #b69bc8;
+  border-radius: 13px;
+  background: #fff6e8;
+  box-shadow: none;
+  color: #654576;
+}
+.game-type-tabs b {
+  display: block;
+  font-size: 13px;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.game-type-tabs small {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: 5px;
+}
+.game-setup .game-type-tabs button[aria-pressed="true"] {
+  background: #c9b1ec;
+  color: #33213e;
+  border-color: #8764a4;
+}
+.setup-games {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 12px;
+  padding: 2px 4px 4px 0;
+  scrollbar-width: thin;
+}
+.game-setup .setup-games button {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid #bfa6cc;
+  border-radius: 11px;
+  background: #fdf5e8;
+  box-shadow: none;
+  color: #684777;
+}
+.setup-games button > span:first-child {
+  font-size: 19px;
+}
+.setup-games button > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.setup-games b {
+  display: block;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+.setup-games small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.game-setup .setup-games button[aria-pressed="true"] {
+  background: #e0f69b;
+  border-color: #88944f;
+  color: #3a4122;
+}
+.setup-submit {
+  padding-top: 4px;
+}
+.game-setup .setup-submit .primary {
+  width: 100%;
+  border: 1px solid #263b25;
+  border-radius: 13px;
+  box-shadow: 0 3px #889a424d;
+  min-height: 49px;
+  padding: 12px 15px;
+  font-size: 16px;
+}
+.setup-submit p {
+  font-size: 11px;
+  color: #80638e;
+  line-height: 1.4;
+  text-align: center;
+  margin: 10px 0 0;
+}
+.setup-validation {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9f295c;
+  margin: 0;
+}
+.game-setup button:focus-visible,
+.game-setup input:focus-visible,
+.join-room-form input:focus-visible {
+  outline: 3px solid #8b4ab9;
+  outline-offset: 3px;
+}
+.game-setup input:disabled {
+  opacity: 0.6;
+}
+.join-room-form {
+  padding: 29px;
+  display: grid;
+  gap: 19px;
+  min-height: 480px;
+  align-content: center;
+  background:
+    radial-gradient(ellipse at 100% 0, #dac3f4, transparent 60%), #f2e6fa;
+}
+.join-room-form > .eyebrow {
+  font-size: 10px;
+  color: #7c568f;
+}
+.join-room-form h2 {
+  font-size: 55px;
+  line-height: 0.86;
+  letter-spacing: -0.07em;
+  margin: 0;
+  color: #432453;
+}
+.join-room-form > p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #886794;
+  margin: 0;
+}
+.join-room-form label {
+  font-size: 12px;
+  font-weight: 750;
+  color: #543467;
+}
+.join-room-form input {
+  font:
+    800 28px/1.2 ui-monospace,
+    monospace;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  padding: 15px;
+  border-radius: 13px;
+  border: 1px solid #a581bb;
+  background: #fff8e9;
+  box-shadow: none;
+  color: #442554;
+}
+.join-room-form .primary {
+  font-size: 16px;
+  border: 1px solid #566524;
+  border-radius: 13px;
+  box-shadow: 0 3px #929e4355;
+}
+.hub-directory {
+  border: 1px solid #ad88c139;
+  border-radius: 22px;
+  background: #ffffff04;
+  padding: 23px;
+  min-width: 0;
+}
+.hub-directory-heading > .eyebrow {
+  font-size: 9px;
+  color: #b69ac9;
+}
+.hub-directory-heading h2 {
+  font-size: 31px;
+  line-height: 1;
+  margin: 9px 0 20px;
+  letter-spacing: -0.06em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.hub-directory-heading h2 > span {
+  font:
+    750 12px ui-monospace,
+    monospace;
+  color: #d1b7df;
+  border: 1px solid #9b78af66;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+}
+.room-list {
+  display: grid;
+  gap: 11px;
+  max-height: 625px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.room-card {
+  min-width: 0;
+  background: #f7ecdf;
+  color: #351d47;
+  border-radius: 15px;
+  border: 1px solid #b597c1;
+  padding: 16px;
+}
+.room-card:nth-child(3n + 2) {
+  background: #e5d4f7;
+}
+.room-card:nth-child(3n + 3) {
+  background: #e8f2c6;
+}
+.room-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.room-phase {
+  font-size: 10px;
+  padding: 4px 7px;
+  border: 1px solid #9d84aa;
+  border-radius: 12px;
+  color: #745086;
+}
+.room-phase.open {
+  background: #dafa4d;
+  color: #4a5523;
+  border-color: #93a454;
+}
+.room-short-code {
+  font:
+    800 11px ui-monospace,
+    monospace;
+  letter-spacing: 0.1em;
+  color: #805791;
+}
+.room-card h3 {
+  font-size: 23px;
+  line-height: 1.05;
+  letter-spacing: -0.055em;
+  margin: 15px 0 10px;
+  overflow-wrap: anywhere;
+}
+.room-card > p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #896b96;
+  margin: 0 0 15px;
+  line-height: 1.4;
+}
+.room-card > p > span {
+  padding-inline: 3px;
+}
+.room-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.room-enter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex: 1;
+  background: #4a2c60;
+  color: #fff4df;
+  text-decoration: none;
+  padding: 9px 11px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 750;
+}
+.room-tv {
+  font-size: 10px;
+  color: #80548e;
+  text-underline-offset: 2px;
+}
+.hub-directory-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #a78bb8;
+  margin: 19px 0 0;
+}
+.room-list-empty {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #b59ac6;
+  padding: 16px 0;
+}
+.hub-loading {
+  padding: 23px;
+  font-size: 15px;
+  color: #80618e;
+}
+.room-hub > footer {
+  margin-top: auto;
+  padding: 20px clamp(20px, 4vw, 64px);
+  font-size: 9px;
+}
+.room-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+.room-identity > .eyebrow,
+.room-identity .eyebrow {
+  font-size: 9px;
+  color: #b498c7;
+}
+.room-identity h2 {
+  font-size: 25px;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+}
+.room-identity > a {
+  font-size: 12px;
+  color: #bea2d0;
+  text-decoration: none;
+  white-space: nowrap;
+  border: 1px solid #9c75b240;
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+.room-ticket-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin-bottom: 9px;
+}
+.room-ticket-code > span {
+  font:
+    700 8px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  max-width: 50px;
+  text-align: left;
+  color: #795589;
+}
+.room-ticket-code strong {
+  font:
+    850 24px ui-monospace,
+    monospace;
+  letter-spacing: 0.13em;
+  color: #49235f;
+  user-select: all;
+}
+.tv .ticket-stub .join-address {
+  font-size: clamp(12px, 1.05vw, 18px);
+  letter-spacing: -0.045em;
+}
+.room-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 15px 0 20px;
+  color: #bea3d0;
+  font-size: 11px;
+}
+.room-navigation a {
+  text-decoration: none;
+  white-space: nowrap;
+}
+.room-navigation > span {
+  min-width: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.room-navigation b {
+  display: block;
+  font:
+    800 13px ui-monospace,
+    monospace;
+  color: var(--lime);
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  user-select: all;
+}
+.phone-room-actions {
+  display: grid;
+  gap: 10px;
+  margin-block: 18px;
+}
+.phone.minimal .phone-setup-card {
+  padding: 20px !important;
+  margin: 10px 14px 22px;
+  border: 1px solid #e7d2f5;
+  border-radius: 20px;
+  background: #efe1f5;
+  color: #3d2551;
+}
+.phone-setup-heading {
+  margin-bottom: 22px;
+}
+.phone.minimal .phone-setup-heading .eyebrow {
+  font-size: 9px !important;
+  color: #8a6798;
+}
+.phone.minimal .phone-setup-heading h2 {
+  font-size: 27px;
+  letter-spacing: -0.055em;
+  margin: 7px 0 0;
+}
+.phone.minimal .game-setup label {
+  color: #5a386d;
+}
+.phone.minimal .game-setup .custom-seats input {
+  padding: 10px;
+}
+.phone.minimal .game-setup .seat-choice,
+.phone.minimal .game-setup .round-control button {
+  min-height: 44px;
+}
+.phone.minimal .game-setup .setup-submit .primary {
+  font-size: 15px;
+}
+.phone.minimal .room-navigation {
+  padding-top: 2px;
+}
+.room-missing {
+  text-align: center;
+  max-width: 640px;
+  margin: 60px auto;
+  padding: 25px;
+}
+.room-missing h1 {
+  font-size: 40px;
+}
+.room-missing p {
+  color: #bda2cf;
+}
+.room-missing a {
+  color: var(--lime);
+}
+@media (max-width: 800px) {
+  .hub-workspace {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .hub-main {
+    max-width: 680px;
+    padding-top: 20px;
+  }
+  .hub-intro {
+    padding: 24px;
+    min-height: 218px;
+  }
+  .hub-intro h1 {
+    font-size: 59px;
+  }
+  .hub-intro img {
+    right: -7%;
+    width: 63%;
+  }
+  .hub-intro p {
+    font-size: 13px;
+  }
+  .hub-intro .eyebrow {
+    font-size: 8px;
+  }
+  .hub-intro-stamp {
+    right: 15px;
+    bottom: 14px;
+    font-size: 7px;
+  }
+  .hub-tag {
+    display: none;
+  }
+  .hub-directory {
+    padding: 19px;
+  }
+  .room-list {
+    max-height: none;
+  }
+  .hub-form-card > .game-setup {
+    padding: 22px;
+  }
+  .hub-form-heading {
+    padding: 22px 22px 0;
+  }
+  .join-room-form {
+    min-height: 380px;
+    padding: 26px;
+  }
+}
+@media (max-width: 440px) {
+  .hub-header {
+    height: 62px;
+    padding-inline: 19px;
+  }
+  .hub-header .brand {
+    font-size: 23px;
+  }
+  .hub-main {
+    padding-inline: 13px;
+  }
+  .hub-intro {
+    border-radius: 21px;
+    padding: 22px;
+    min-height: 227px;
+  }
+  .hub-intro h1 {
+    font-size: 55px;
+  }
+  .hub-intro img {
+    right: -12%;
+    width: 70%;
+  }
+  .hub-intro .eyebrow {
+    font-size: 7px;
+  }
+  .hub-intro p {
+    font-size: 12px;
+    max-width: 16em;
+  }
+  .hub-workspace {
+    margin-top: 19px;
+  }
+  .hub-tabs button {
+    font-size: 12px;
+    gap: 6px;
+  }
+  .hub-form-card > .game-setup {
+    padding: 21px 18px;
+  }
+  .hub-form-heading {
+    padding: 22px 18px 0;
+  }
+  .seat-choices {
+    gap: 6px;
+  }
+  .game-setup .seat-choice {
+    min-width: 43px;
+    padding: 8px 9px;
+    min-height: 58px;
+  }
+  .game-setup .seat-infinity {
+    min-width: 71px;
+  }
+  .game-setup .seat-custom {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .game-type-tabs b {
+    font-size: 12px;
+  }
+  .game-type-tabs small {
+    font-size: 9px;
+  }
+  .game-setup .game-type-tabs button {
+    gap: 7px;
+    padding: 10px;
+  }
+  .round-choice {
+    gap: 10px;
+  }
+  .game-setup .round-control button {
+    padding: 11px;
+  }
+  .game-setup .round-shortcuts button {
+    padding: 8px;
+  }
+  .phone.minimal .phone-setup-card {
+    padding: 17px !important;
+  }
+  .room-identity h2 {
+    font-size: 21px;
+  }
+  .room-identity > a {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .room-ticket-code strong {
+    font-size: 23px;
+  }
+}

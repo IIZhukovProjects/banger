@@ -1,0 +1,20 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Application
+application:
+  name: banger
+  description: Пати-игра с комнатами, экраном телевизора, телефонными контроллерами и генерацией изображений
+  source:
+    repository: https://github.com/IIZhukovProjects/banger.git
+    branch: main
+  apps:
+    - apps/frontend/app.yaml
+  services:
+    - services/backend/service.yaml
+    - services/llm/service.yaml
+  infrastructure: infrastructure.yaml
+  deployment: deploy.yaml
+  ingress: ingress.yaml
+  environments:
+    local: environments/local.yaml
+    test: environments/test.yaml
+    prod: environments/prod.yaml

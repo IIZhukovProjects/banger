@@ -1,0 +1,27 @@
+get:
+  operationId: getRoom
+  tags: [rooms]
+  parameters:
+    - name: code
+      in: path
+      required: true
+      schema: {type: string}
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code: {type: string}
+              name: {type: string}
+              phase: {type: string}
+              players: {type: integer, minimum: 0}
+              capacity:
+                type: [integer, 'null']
+                minimum: 2
+              mode: {type: string}
+              count: {type: integer}
+            required: [code, name, phase, players, capacity, mode, count]
+            additionalProperties: false

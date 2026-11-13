@@ -1,0 +1,28 @@
+delete:
+  operationId: removePlayer
+  tags: [rooms.players]
+  parameters:
+    - name: player_id
+      in: path
+      required: true
+      schema: {type: string}
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: {const: true}
+            required: [ok]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}

@@ -1,0 +1,54 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Service
+service:
+  clients: []
+  name: llm
+  version: 0.1.0
+  description: Задания генерации изображений, провайдеры моделей и сохранение результатов
+  active: true
+
+  python:
+    major: 3
+    minor: 12
+
+  main:
+    enabled: true
+
+  server:
+    http:
+      enabled: true
+      port: 8001
+      schema: schemas/llm/api.yaml
+
+    grpc:
+      enabled: false
+      port: 8080
+      schema:
+
+  resources:
+    postgres:
+      resource: postgres
+      database: llm
+      access: read-write
+      migrations:
+        directory: migrations
+    s3:
+      resource: s3
+      access: read-write
+    observability:
+      logs: true
+      metrics: true
+      traces: true
+      logging:
+        local:
+          enabled: true
+          path: logs/llm.log
+          level: INFO
+        platform:
+          level: INFO
+
+  config:
+    schema: schemas/llm/config.yaml
+  scheduler:
+    enabled: false
+    storage: memory

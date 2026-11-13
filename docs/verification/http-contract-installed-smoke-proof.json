@@ -1,0 +1,13 @@
+{
+  "migrations": true,
+  "readiness": true,
+  "roomsAuthorityPrivacyScoring": true,
+  "s3UploadsAndRoomIsolation": true,
+  "backendToLlmDurableFakeImages": true,
+  "llmIdempotencyAndConflict": true,
+  "backendRestartPersistence": true,
+  "jobRecoveryAndNoBlindPaidResubmit": true,
+  "gracefulShutdown": true,
+  "grafanaLogsTracesMetrics": true,
+  "noCredentialsInGeneratedOrLogs": true
+}

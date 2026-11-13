@@ -1,0 +1,38 @@
+post:
+  operationId: updateRoom
+  tags: [rooms]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            mode: {type: string, default: mix}
+            count: {type: integer, default: 3, minimum: 1, maximum: 12}
+            capacity:
+              type: [integer, 'null']
+              minimum: 2
+            name: {type: string, minLength: 1, maxLength: 40}
+          required: []
+          additionalProperties: false
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: {const: true}
+            required: [ok]
+            additionalProperties: false
+parameters:
+  - name: X-Room-Code
+    in: header
+    required: false
+    schema: {type: string}
+  - name: Authorization
+    in: header
+    required: false
+    schema: {type: string}
