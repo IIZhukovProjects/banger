@@ -3,23 +3,28 @@ kind: Deployment
 deployment:
   environments:
     test:
-      enabled: false
+      enabled: true
       strategy: rolling
       defaults:
-        instances: 1
+        instances: 2
         placement:
-          machines: 1
-          datacenters: 1
+          machines: 2
+          datacenters: 2
         resources:
-          cpuCores: 0.5
-          memoryMiB: 512
-          diskMiB: 1024
+          cpuCores: 0.1
+          memoryMiB: 128
+          diskMiB: 512
       workloads:
+        backend:
+          instances: 4
+        llm:
+          resources:
+            memoryMiB: 160
         frontend:
           resources:
-            cpuCores: 0.25
-            memoryMiB: 128
-            diskMiB: 256
+            cpuCores: 0.05
+            memoryMiB: 32
+            diskMiB: 128
     prod:
       enabled: false
       strategy: rolling
