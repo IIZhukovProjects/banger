@@ -10,11 +10,3 @@ ingress:
             target: backend
           - pathPrefix: /
             target: frontend
-    prod:
-      - hostname: banger.example.com
-        tls: automatic
-        routes:
-          - pathPrefix: /api/
-            target: backend
-          - pathPrefix: /
-            target: frontend
