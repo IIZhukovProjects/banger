@@ -10,7 +10,6 @@ ingress:
             target: backend
           - pathPrefix: /
             target: frontend
-    test: []
     prod:
       - hostname: banger.example.com
         tls: automatic

@@ -16,5 +16,4 @@ application:
   ingress: ingress.yaml
   environments:
     local: environments/local.yaml
-    test: environments/test.yaml
     prod: environments/prod.yaml
