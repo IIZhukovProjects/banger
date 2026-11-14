@@ -17,4 +17,4 @@ environment:
         IMAGE_JOB_CONCURRENCY: '2'
         POLZA_API_KEY:
           secretRef:
-            id: null
+            id: sec_20fb3db0bde3434da568a441e434ac4c
