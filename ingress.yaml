@@ -10,3 +10,11 @@ ingress:
             target: backend
           - pathPrefix: /
             target: frontend
+    prod:
+      - hostname: banger.iizhukov.ru
+        tls: automatic
+        routes:
+          - pathPrefix: /api/
+            target: backend
+          - pathPrefix: /
+            target: frontend
