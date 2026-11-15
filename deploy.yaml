@@ -6,10 +6,10 @@ deployment:
       enabled: true
       strategy: rolling
       defaults:
-        instances: 4
+        instances: 1
         placement:
-          machines: 2
-          datacenters: 2
+          machines: 1
+          datacenters: 1
         resources:
           cpuCores: 0.1
           memoryMiB: 128
@@ -21,7 +21,6 @@ deployment:
             memoryMiB: 32
             diskMiB: 128
         llm:
-          instances: 2
           resources:
             cpuCores: 0.15
             memoryMiB: 192
