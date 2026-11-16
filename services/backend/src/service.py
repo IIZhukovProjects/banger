@@ -8,13 +8,16 @@ import uuid
 
 from PIL import Image, UnidentifiedImageError
 
-from generated.clients.llm.create_image_job import Request as CreateImageJobRequest
+from generated.clients.ai_gateway.create_chat import Request as CreateChatRequest
+from generated.clients.ai_gateway.create_job import Request as CreateJobRequest
+from generated.config import ImageGenerationConfig
 from platform_codegen.runtime.clients import ServiceCallError
 
 from game.catalog import LEGACY_ROOM, ROOM_ALPHABET, MIN_PLAYERS
 from catalog_repository import CatalogRepository
 from game.room import GameRoom
 from game.errors import GameError
+from image_prompt import grok_image_prompt, sticker_prompt
 from persistence import RoomRepository
 
 
@@ -24,7 +27,7 @@ class GameService:
         self.repository = None
         self.catalog = None
         self.storage = runtime.s3
-        self.llm = runtime.clients["llm"]
+        self.image_gateway = runtime.clients["ai-gateway"]
         self.settings = runtime.settings
 
     async def start(self):
@@ -79,8 +82,8 @@ class GameService:
                 for name, mode in self.catalog.modes.items()
                 if mode["kind"] in ("image", "relay", "shared")
             ],
-            "image_model": self.settings.polza_image_model,
-            "image_provider": self.settings.image_provider,
+            "image_model": self.runtime.config.get(ImageGenerationConfig).model,
+            "image_provider": ("fake" if self.image_gateway.is_mock else "ai-gateway"),
         }
 
     @observed("backend.mutate")
@@ -237,24 +240,77 @@ class GameService:
 
     @observed("image.outbox.process", parent="request")
     async def process_image(self, request):
-        if not request["remote_id"]:
-            response = await self.llm.create_image_job(
-                body=CreateImageJobRequest(prompt=request["prompt"]),
-                idempotency_key=request["room_code"]
-                + ":"
-                + request["round_id"]
-                + ":"
-                + request["id"],
+        remote_id = request["remote_id"]
+        if remote_id and "-" in remote_id:
+            await self.repository.reject_image(
+                request,
+                "Задание было отправлено старому сервису. Запусти генерацию снова.",
+            )
+            return
+        if not remote_id:
+            model = request["gateway_model"]
+            if model is None:
+                model = self.runtime.config.get(ImageGenerationConfig).model
+                if not await self.repository.pin_image_model(request, model):
+                    return
+            chat = await self.image_gateway.create_chat(
+                body=CreateChatRequest(title="Banger " + request["room_code"]),
+                idempotency_key="banger-room:" + request["room_code"],
+            )
+            prompt = grok_image_prompt if "grok" in model.casefold() else sticker_prompt
+            response = await self.image_gateway.create_job(
+                chat_id=chat.id,
+                body=CreateJobRequest(model=model, text=prompt(request["prompt"])),
+                idempotency_key=request["id"],
             )
         else:
-            response = await self.llm.get_image_job(
-                job_id=uuid.UUID(request["remote_id"])
+            try:
+                response = await self.image_gateway.get_job(job_id=remote_id)
+            except ServiceCallError as error:
+                if error.status != 404 or not self.image_gateway.is_mock:
+                    raise
+                await self.repository.update_request(
+                    request, remote_id=None, next_attempt=0
+                )
+                return
+        if response.status == "succeeded":
+            if not response.result or not response.result.file_id:
+                await self.repository.reject_image(
+                    request, "Gateway не вернул картинку"
+                )
+                return
+            file = await self.image_gateway.get_file(file_id=response.result.file_id)
+            data = file.content
+            try:
+                if not data or len(data) > self.settings.max_upload_bytes:
+                    raise ValueError
+                with Image.open(io.BytesIO(data)) as image:
+                    extension, media_type = {
+                        "PNG": (".png", "image/png"),
+                        "JPEG": (".jpg", "image/jpeg"),
+                        "WEBP": (".webp", "image/webp"),
+                    }[image.format]
+                    if image.width * image.height > self.settings.max_image_pixels:
+                        raise ValueError
+                    image.verify()
+            except (OSError, ValueError, KeyError, Image.DecompressionBombError):
+                await self.repository.reject_image(
+                    request, "Gateway вернул неверную картинку"
+                )
+                return
+            filename = request["id"] + extension
+            key = f"generated/{request['room_code']}/{filename}"
+            await self.storage.put(key, data, media_type)
+            await self.repository.finish_image(
+                request, artifact=(filename, key, media_type, len(data))
             )
-        if response.status in ("succeeded", "failed", "needs_reconciliation"):
-            await self.repository.finish_image(request, response)
+        elif response.status in ("failed", "interrupted"):
+            await self.repository.reject_image(
+                request, response.error or "Не удалось создать изображение"
+            )
         else:
             await self.repository.update_request(
-                request, remote_id=str(response.id), next_attempt=time.time() + 1
+                request, remote_id=response.id, next_attempt=time.time() + 1
             )
 
     async def collect_statistics(self):

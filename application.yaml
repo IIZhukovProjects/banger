@@ -10,7 +10,6 @@ application:
     - apps/frontend/app.yaml
   services:
     - services/backend/service.yaml
-    - services/llm/service.yaml
   infrastructure: infrastructure.yaml
   deployment: deploy.yaml
   ingress: ingress.yaml

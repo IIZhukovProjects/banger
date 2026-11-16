@@ -2,7 +2,12 @@ apiVersion: platform.iizhukov.dev/v1alpha1
 kind: Service
 service:
   clients:
-  - llm
+    - name: ai-gateway
+      repository: https://github.com/IIZhukovProjects/ai-gateway.git
+      service: backend
+      environment: prod
+      headers:
+        Authorization: "Bearer ${AI_GATEWAY_TOKEN}"
   name: backend
   version: 0.1.0
   description: Комнаты, игроки, игровые переходы, таймеры, голосование и счет
@@ -45,6 +50,8 @@ service:
   initialize:
     command: [python, -m, seed_catalog]
     environment: [DATABASE_URL]
+  config:
+    schema: schemas/backend/config.yaml
   scheduler:
     enabled: false
     storage: memory

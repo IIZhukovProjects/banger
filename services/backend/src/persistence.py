@@ -44,6 +44,7 @@ image_requests = Table(
     Column("owner", String(32), nullable=False),
     Column("prompt", Text, nullable=False),
     Column("remote_id", String(36)),
+    Column("gateway_model", String(128)),
     Column("status", String(20), nullable=False, default="pending"),
     Column("attempts", Integer, nullable=False, default=0),
     Column("next_attempt", Float, nullable=False, default=0),
@@ -231,6 +232,18 @@ class RoomRepository:
             )
             return {**row, "lease_token": token}
 
+    async def pin_image_model(self, request, model):
+        async with self.database.transaction() as session:
+            result = await session.execute(
+                update(image_requests)
+                .where(
+                    image_requests.c.id == request["id"],
+                    image_requests.c.lease_token == request["lease_token"],
+                )
+                .values(gateway_model=model)
+            )
+            return result.rowcount == 1
+
     async def update_request(self, request, **values):
         async with self.database.transaction() as session:
             await session.execute(
@@ -243,7 +256,7 @@ class RoomRepository:
             )
 
     @observed("backend.repository.finish_image")
-    async def finish_image(self, request, response):
+    async def finish_image(self, request, *, artifact=None, error=None):
         async with self.locked(request["room_code"]) as (game, session):
             row = (
                 (
@@ -259,34 +272,18 @@ class RoomRepository:
             if row["lease_token"] != request["lease_token"]:
                 return
             image = None
-            error = None
-            moderated = False
-            if response.status == "succeeded":
-                result = response.result
-                filename = str(response.id) + ".png"
+            if artifact:
+                filename, key, content_type, size = artifact
                 await self.store_artifact(
-                    session,
-                    game.code,
-                    filename,
-                    result.object_key,
-                    result.media_type,
-                    result.bytes,
+                    session, game.code, filename, key, content_type, size
                 )
                 image = game.image_url(filename)
-            else:
-                error = (
-                    response.error.message
-                    if response.error
-                    else "Не удалось создать изображение"
-                )
-                moderated = bool(response.error and response.error.code == "moderated")
             game.apply_image(
                 request["round_id"],
                 request["owner"],
                 request["id"],
                 image=image,
                 error=error,
-                moderated=moderated,
             )
             await session.execute(
                 update(image_requests)
@@ -294,30 +291,8 @@ class RoomRepository:
                 .values(status="done", lease_until=0, lease_token=None)
             )
 
-    @observed("backend.repository.reject_image")
     async def reject_image(self, request, message):
-        async with self.locked(request["room_code"]) as (game, session):
-            row = (
-                (
-                    await session.execute(
-                        select(image_requests)
-                        .where(image_requests.c.id == request["id"])
-                        .with_for_update()
-                    )
-                )
-                .mappings()
-                .one()
-            )
-            if row["lease_token"] != request["lease_token"]:
-                return
-            game.apply_image(
-                request["round_id"], request["owner"], request["id"], error=message
-            )
-            await session.execute(
-                update(image_requests)
-                .where(image_requests.c.id == request["id"])
-                .values(status="done", lease_until=0, lease_token=None)
-            )
+        await self.finish_image(request, error=message)
 
     async def statistics(self):
         async with self.database.transaction() as session:

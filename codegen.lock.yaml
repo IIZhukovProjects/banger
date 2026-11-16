@@ -1,4 +1,4 @@
 codegen:
   distribution: platform-codegen
-  version: 0.2.0.dev11
-  contentSha256: 1e59187bcb1f8162bb98356ee674b915b30d0cd3782f3deeb09ce32706c4818f
+  version: 0.2.0.dev12
+  contentSha256: 991dad0bdbfb955788e6c827690dabeb690ee014b7af9faef317f1673a09d6fa

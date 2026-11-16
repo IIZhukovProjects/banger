@@ -1,4 +1,4 @@
-"""Run application tests with both service source roots; no Docker or paid API."""
+"""Run application tests against the in-process Gateway mock."""
 
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ environment = dict(os.environ)
 environment["PYTHONPATH"] = os.pathsep.join(
     [
         str(root / "services/backend/src"),
-        str(root / "services/llm/src"),
+        str(root / "services/backend"),
         environment.get("PYTHONPATH", ""),
     ]
 )

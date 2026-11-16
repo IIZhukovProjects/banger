@@ -11,20 +11,10 @@ from PIL import Image
 from smoke_local import require
 
 
-def run(base, llm):
-    for url in (base, llm):
-        assert urlsplit(url).hostname in ("127.0.0.1", "localhost"), "Local stack only"
+def run(base):
+    assert urlsplit(base).hostname in ("127.0.0.1", "localhost"), "Local stack only"
     checks = {}
-    idempotency_key = "smoke-" + uuid.uuid4().hex
-    with httpx.Client(
-        base_url=base,
-        timeout=10,
-        trust_env=False,
-    ) as api, httpx.Client(
-        base_url=llm,
-        timeout=10,
-        trust_env=False,
-    ) as images:
+    with httpx.Client(base_url=base, timeout=10, trust_env=False) as api:
         incoming_trace = uuid.uuid4().hex
         response = api.get(
             "/api/meta",
@@ -180,40 +170,12 @@ def run(base, llm):
             assert response.status_code == 200
             with Image.open(io.BytesIO(response.content)) as image:
                 assert image.mode == "RGBA"
-        checks["backendToLlmDurableFakeImages"] = True
-        payload = {"prompt": "Идемпотентная картинка"}
-        first = require(
-            images.post(
-                "/internal/v1/image-jobs",
-                headers={"Idempotency-Key": idempotency_key},
-                json=payload,
-            ),
-            202,
-        )
-        repeat = require(
-            images.post(
-                "/internal/v1/image-jobs",
-                headers={"Idempotency-Key": idempotency_key},
-                json=payload,
-            ),
-            202,
-        )
-        assert first["id"] == repeat["id"]
-        assert (
-            images.post(
-                "/internal/v1/image-jobs",
-                headers={"Idempotency-Key": idempotency_key},
-                json={"prompt": "Другой запрос"},
-            ).status_code
-            == 409
-        )
-        checks["llmIdempotencyAndConflict"] = True
+        checks["backendToGatewayMockImages"] = True
     return checks
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", required=True)
-    parser.add_argument("--llm-url", required=True)
     args = parser.parse_args()
-    print(json.dumps(run(args.url, args.llm_url)))
+    print(json.dumps(run(args.url)))

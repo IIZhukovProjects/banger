@@ -23,8 +23,6 @@ infrastructure:
       databases:
         game:
           name: banger_game
-        llm:
-          name: banger_llm
       backups: required
     s3:
       kind: s3-bucket

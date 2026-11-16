@@ -1,0 +1,14 @@
+{
+  "commit": "9a5ff33ec8a22e4d6f8c294cb01fd85077511ccd",
+  "contractSha256": "55718e9df3a233300b567c06cbd94dc27f9cb89ef1803db42c4c09eb7fecd7d2",
+  "factory": "create_handlers",
+  "mockSha256": "48f9adfb7dc4c19209c8fe2f2779de2deff1c3d283a710c9bf46e6374c409cc3",
+  "operations": [
+    "createChat",
+    "createJob",
+    "getJob",
+    "getFile"
+  ],
+  "repository": "https://github.com/IIZhukovProjects/ai-gateway.git",
+  "service": "backend"
+}

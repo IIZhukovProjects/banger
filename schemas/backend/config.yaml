@@ -1,0 +1,13 @@
+apiVersion: platform.iizhukov.dev/v1alpha1
+kind: Config
+config:
+  classes:
+    ImageGenerationConfig:
+      key: image-generation
+      description: Модель AI Gateway для новых изображений
+      fields:
+        model:
+          type: str
+          default: polza-ai-grok-imagine
+          min_length: 1
+          max_length: 128

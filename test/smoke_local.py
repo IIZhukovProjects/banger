@@ -1,8 +1,6 @@
-"""Explicit temporary PostgreSQL/S3 + backend/llm smoke. Never invokes Polza."""
+"""Exercise Banger, PostgreSQL, S3 and the in-process Gateway mock."""
 
 import argparse
-import asyncio
-import hashlib
 import io
 import json
 import os
@@ -17,7 +15,6 @@ import uuid
 
 import httpx
 from PIL import Image
-from sqlalchemy import text
 
 from platform_codegen.infrastructure.commands import generate, compose
 from platform_codegen.configuration.delivery import delivery
@@ -27,7 +24,6 @@ from platform_codegen.generation.local_ingress import IMAGE, nginx_config
 from platform_codegen.generation.services import generate_services
 from platform_codegen.service.commands import migrate, context
 from platform_codegen.service.scaffold import yaml_parser, serialize
-from platform_codegen.runtime.database import Database
 
 
 def free_port(used):
@@ -74,7 +70,7 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
         name: free_port(used)
         for name in ("postgres", "s3", "grafana", "otlp_http", "otlp_grpc")
     }
-    service_ports = {name: free_port(used) for name in ("backend", "llm")}
+    service_ports = {name: free_port(used) for name in ("backend",)}
     p = root / "infrastructure.yaml"
     document = parser.load(p.read_text())
     document["infrastructure"]["modes"]["local"]["ports"] = ports
@@ -169,7 +165,6 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
             root / "services/backend/src/game/catalog_seed.json.seeded"
         )
 
-        start("llm")
         start("backend")
         checks["readiness"] = True
         checks["catalogReadFromDatabaseWithoutSeedFile"] = True
@@ -240,15 +235,15 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                 except httpx.HTTPError:
                     pass
                 time.sleep(0.2)
-            assert httpx.get(url + "/api/meta", trust_env=False).status_code == 200, (
-                "Nginx proxy failed"
-            )
+            assert (
+                httpx.get(url + "/api/meta", trust_env=False).status_code == 200
+            ), "Nginx proxy failed"
             with httpx.Client(base_url=url, trust_env=False) as public:
-                for path in ("/internal/v1/image-jobs", "/api/internal/v1/image-jobs"):
+                for path in ("/api/v1/jobs/unknown", "/api/api/v1/jobs/unknown"):
                     response = public.post(path, json={"prompt": "blocked"})
                     assert response.status_code in (404, 405), path
             checks["nginxProxy"] = True
-            checks["llmRoutesUnavailableThroughNginx"] = True
+            checks["gatewayRoutesUnavailableThroughNginx"] = True
             output = (
                 proof.parent / "browser-artifacts"
                 if proof
@@ -277,11 +272,6 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                 timeout=10,
                 trust_env=False,
             ) as api,
-            httpx.Client(
-                base_url=f"http://127.0.0.1:{service_ports['llm']}",
-                timeout=10,
-                trust_env=False,
-            ) as images,
         ):
             meta = require(api.get("/api/meta"))
             assert len(meta["modes"]) == 16
@@ -436,34 +426,7 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                 assert response.status_code == 200
                 with Image.open(io.BytesIO(response.content)) as image:
                     assert image.mode == "RGBA"
-            checks["backendToLlmDurableFakeImages"] = True
-            payload = {"prompt": "Идемпотентная картинка"}
-            first = require(
-                images.post(
-                    "/internal/v1/image-jobs",
-                    headers={"Idempotency-Key": "smoke-idempotency"},
-                    json=payload,
-                ),
-                202,
-            )
-            repeat = require(
-                images.post(
-                    "/internal/v1/image-jobs",
-                    headers={"Idempotency-Key": "smoke-idempotency"},
-                    json=payload,
-                ),
-                202,
-            )
-            assert first["id"] == repeat["id"]
-            assert (
-                images.post(
-                    "/internal/v1/image-jobs",
-                    headers={"Idempotency-Key": "smoke-idempotency"},
-                    json={"prompt": "Другой запрос"},
-                ).status_code
-                == 409
-            )
-            checks["llmIdempotencyAndConflict"] = True
+            checks["backendToGatewayMockImages"] = True
             stop("backend")
             start("backend")
             assert (
@@ -473,66 +436,7 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                 require(api.get("/api/state", headers=players_b[0]))["phase"] == "vote"
             )
             checks["backendRestartPersistence"] = True
-            stop("llm")
-            _, _, environment = context(root, "llm", "local")
-            recovered_id, unknown_id = str(uuid.uuid4()), str(uuid.uuid4())
-
-            async def seed_recovery():
-                database = Database(environment["DATABASE_URL"])
-                try:
-                    async with database.transaction() as session:
-                        for ident, provider in (
-                            (recovered_id, "fake"),
-                            (unknown_id, "polza"),
-                        ):
-                            now = time.time()
-                            await session.execute(
-                                text(
-                                    """INSERT INTO image_jobs (id,idempotency_key,fingerprint,prompt,provider,model,phase,status,created_at,updated_at,lease_until,next_attempt,attempts,trace_context)
-                                VALUES (:id,:key,:fingerprint,:prompt,:provider,:model,'submitting','running',:now,:now,0,0,0,CAST(:trace_context AS jsonb))"""
-                                ),
-                                {
-                                    "id": ident,
-                                    "key": "recovery-" + ident,
-                                    "fingerprint": hashlib.sha256(
-                                        b"recover"
-                                    ).hexdigest(),
-                                    "prompt": "recover",
-                                    "trace_context": json.dumps(
-                                        {
-                                            "traceparent": traceparent,
-                                            "tracestate": "platform=test",
-                                        }
-                                    ),
-                                    "provider": provider,
-                                    "model": "unused",
-                                    "now": now,
-                                },
-                            )
-                finally:
-                    await database.close()
-
-            asyncio.run(seed_recovery())
-            start("llm")
-            deadline = time.monotonic() + 20
-            while time.monotonic() < deadline:
-                recovered = require(
-                    images.get("/internal/v1/image-jobs/" + recovered_id)
-                )
-                unknown = require(images.get("/internal/v1/image-jobs/" + unknown_id))
-                if (
-                    recovered["status"] == "succeeded"
-                    and unknown["status"] == "needs_reconciliation"
-                ):
-                    break
-                time.sleep(0.2)
-            assert (
-                recovered["status"] == "succeeded"
-                and unknown["status"] == "needs_reconciliation"
-            )
-            checks["jobRecoveryAndNoBlindPaidResubmit"] = True
-            for name in ("backend", "llm"):
-                stop(name)
+            stop("backend")
             checks["gracefulShutdown"] = True
             if observability:
                 admin = json.loads(
@@ -617,13 +521,13 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                             names = collect_names(result.json())
                             observed["durable_trace"] = {
                                 "image.outbox.process",
-                                "image.job.process",
+                                "image.outbox.process",
                                 "storage.s3.put",
                             } <= names
                         result = grafana.get(
                             "/api/datasources/proxy/uid/prometheus/api/v1/query",
                             params={
-                                "query": 'sum({__name__=~"service_operation_calls.*",operation=~"image.job.process|storage.s3.put"})'
+                                "query": 'sum({__name__=~"service_operation_calls.*",operation=~"image.outbox.process|storage.s3.put"})'
                             },
                         )
                         if result.status_code == 200:
@@ -633,9 +537,9 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                             )
                         if not all(observed.values()):
                             time.sleep(1)
-                    assert all(observed.values()), (
-                        "Missing observability signals: " + str(observed)
-                    )
+                    assert all(
+                        observed.values()
+                    ), "Missing observability signals: " + str(observed)
                     checks["grafanaLogsTracesMetrics"] = True
                     checks["ingressTraceThroughDurableJobsAndS3"] = True
                     checks["businessMetricsExported"] = True
@@ -645,9 +549,9 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
         for path in root.rglob("*"):
             if path.is_file() and ("generated" in path.parts or path.suffix == ".log"):
                 content = path.read_bytes()
-                assert all(value.encode() not in content for value in pools.values()), (
-                    "Secret found in generated output or logs"
-                )
+                assert all(
+                    value.encode() not in content for value in pools.values()
+                ), "Secret found in generated output or logs"
         checks["noCredentialsInGeneratedOrLogs"] = True
         if proof:
             proof.write_text(json.dumps(checks, indent=2) + "\n")
@@ -658,7 +562,7 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
         passwords = json.loads(
             (root / ".local/infrastructure/credentials.json").read_text()
         ).values()
-        for name in ("backend", "llm"):
+        for name in ("backend",):
             path = parent / (name + ".log")
             if path.exists():
                 tail = path.read_text()[-12000:]

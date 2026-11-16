@@ -1,7 +1,5 @@
 """The player's description is also the public caption; style instructions stay server-side."""
 
-DEFAULT_IMAGE_MODEL = "openai/gpt-image-1.5"
-
 
 def sticker_prompt(description: str) -> str:
     return f"""Создай квадратный PNG-стикер для пати-игры «Я за БЕНГЕР». Изобрази: {description.strip()}.
