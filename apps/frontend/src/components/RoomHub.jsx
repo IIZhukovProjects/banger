@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Plus, Ticket, Users } from "lucide-react";
+import { ArrowRight, Plus, Ticket } from "lucide-react";
 import GameSetup from "./GameSetup";
-
-const PHASES = {
-  lobby: "Собираются",
-  briefing: "Играют",
-  answer: "Играют",
-  caption: "Играют",
-  vote: "Голосуют",
-  reveal: "Результаты",
-  final: "Финал",
-};
 
 export function roomPath(code, tv = false) {
   return (tv ? "/tv" : "/play") + "?room=" + encodeURIComponent(code);
@@ -18,14 +8,12 @@ export function roomPath(code, tv = false) {
 
 export default function RoomHub({ request, isTV }) {
   const [meta, setMeta] = useState(null);
-  const [rooms, setRooms] = useState([]);
   const [tab, setTab] = useState(isTV ? "create" : "join");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
-    let alive = true,
-      loading = false;
+    let alive = true;
     request("meta")
       .then((data) => {
         if (alive) setMeta(data);
@@ -34,23 +22,8 @@ export default function RoomHub({ request, isTV }) {
         if (alive)
           setError("Не удалось загрузить каталог игр. Обнови страницу.");
       });
-    async function refresh() {
-      if (loading) return;
-      loading = true;
-      try {
-        const data = await request("rooms");
-        if (alive) setRooms(data.rooms);
-      } catch {
-        if (alive) setError("Комнаты пока недоступны. Проверяем соединение…");
-      } finally {
-        loading = false;
-      }
-    }
-    refresh();
-    const interval = setInterval(refresh, 4000);
     return () => {
       alive = false;
-      clearInterval(interval);
     };
   }, []);
   async function create(settings) {
@@ -203,66 +176,6 @@ export default function RoomHub({ request, isTV }) {
               </form>
             )}
           </section>
-          <aside className="hub-directory" aria-labelledby="rooms-title">
-            <div className="hub-directory-heading">
-              <span className="eyebrow">КТО УЖЕ СОБРАЛСЯ</span>
-              <h2 id="rooms-title">
-                Комнаты<span>{rooms.length}</span>
-              </h2>
-            </div>
-            <div className="room-list">
-              {rooms.map((room) => (
-                <article className="room-card" key={room.code}>
-                  <div className="room-card-top">
-                    <span
-                      className={
-                        "room-phase " + (room.phase === "lobby" ? "open" : "")
-                      }
-                    >
-                      {PHASES[room.phase] || "Играют"}
-                    </span>
-                    <span className="room-short-code">{room.code}</span>
-                  </div>
-                  <h3>{room.name}</h3>
-                  <p>
-                    <Users size={14} />
-                    {room.players}
-                    {room.capacity === null
-                      ? " / ∞"
-                      : " / " + room.capacity}{" "}
-                    игроков<span>·</span>
-                    {room.count} раунд.
-                  </p>
-                  <div className="room-card-actions">
-                    <a className="room-enter" href={roomPath(room.code, isTV)}>
-                      {isTV ? "Открыть экран" : "Войти"}
-                      <ArrowUpRight size={17} />
-                    </a>
-                    {!isTV && (
-                      <a
-                        className="room-tv"
-                        href={roomPath(room.code, true)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        На телевизор ↗
-                      </a>
-                    )}
-                  </div>
-                </article>
-              ))}
-              {!rooms.length && (
-                <p className="room-list-empty">
-                  Пока тихо.
-                  <br />
-                  Самое время собрать первую банду.
-                </p>
-              )}
-            </div>
-            <p className="hub-directory-note">
-              У каждой комнаты свои участники, задания и счёт.
-            </p>
-          </aside>
         </div>
       </main>
       <footer>

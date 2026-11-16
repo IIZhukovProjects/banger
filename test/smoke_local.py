@@ -300,6 +300,8 @@ def run(source, proof=None, *, observability=False, frontend_image=None):
                 )["token"]
                 return {"X-Room-Code": room["code"], "Authorization": token}
 
+            assert api.get("/api/rooms").status_code == 405
+            checks["roomDirectoryDisabled"] = True
             players_a = [join(a, name) for name in ("Ведущий", "Друг")]
             players_b = [join(b, name) for name in ("Ведущий", "Друг")]
             assert (

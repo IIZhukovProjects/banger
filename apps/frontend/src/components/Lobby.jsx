@@ -58,7 +58,7 @@ export default function Lobby({
           <span className="eyebrow">ВАША КОМНАТА</span>
           <h2>{roomName}</h2>
         </div>
-        <a href="/tv">← Все комнаты</a>
+        <a href="/tv">← На главную</a>
       </div>
       <div className="lobby-top">
         <section className="hero" aria-label="Я за БЕНГЕР">

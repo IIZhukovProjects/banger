@@ -1,6 +1,6 @@
 {
-  "commit": "9a5ff33ec8a22e4d6f8c294cb01fd85077511ccd",
-  "contractSha256": "55718e9df3a233300b567c06cbd94dc27f9cb89ef1803db42c4c09eb7fecd7d2",
+  "commit": "dd3184991eda8778b90f6a09edfd7d3a1d41910c",
+  "contractSha256": "b65d26d770b244f5b1c0df97d3102849b68dbad7b6860dea9b36bc8ef0dd7f2b",
   "factory": "create_handlers",
   "mockSha256": "48f9adfb7dc4c19209c8fe2f2779de2deff1c3d283a710c9bf46e6374c409cc3",
   "operations": [

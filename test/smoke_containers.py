@@ -28,6 +28,8 @@ def run(base):
         meta = require(api.get("/api/meta"))
         assert len(meta["modes"]) == 16
         assert meta["image_provider"] == "fake", "Smoke requires fake provider"
+        assert api.get("/api/rooms").status_code == 405
+        checks["roomDirectoryDisabled"] = True
         a = require(
             api.post(
                 "/api/rooms",

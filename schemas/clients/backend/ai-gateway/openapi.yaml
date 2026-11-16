@@ -152,6 +152,16 @@
     "/api/auth/login": {
       "get": {
         "operationId": "login",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "returnTo",
+            "schema": {
+              "maxLength": 512,
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -607,6 +617,60 @@
         ]
       }
     },
+    "/api/v1/admin/gateway-status": {
+      "get": {
+        "operationId": "readGatewayStatus",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Готовность Gateway и состояние очереди"
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/v1/admin/model-access/{modelId}": {
+      "get": {
+        "operationId": "listModelAccess",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Токены приложений с доступом к указанной модели"
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
+    },
     "/api/v1/admin/provider-balances": {
       "get": {
         "operationId": "listProviderBalances",
@@ -733,12 +797,16 @@
             "name": "accountType",
             "required": true,
             "schema": {
-              "maxLength": 255,
-              "minLength": 1,
+              "enum": [
+                "application",
+                "user",
+                "login"
+              ],
               "type": "string"
             }
           },
           {
+            "description": "Логин Platform при accountType=login, иначе ID аккаунта.",
             "in": "path",
             "name": "accountId",
             "required": true,
@@ -774,12 +842,16 @@
             "name": "accountType",
             "required": true,
             "schema": {
-              "maxLength": 255,
-              "minLength": 1,
+              "enum": [
+                "application",
+                "user",
+                "login"
+              ],
               "type": "string"
             }
           },
           {
+            "description": "Логин Platform при accountType=login, иначе ID аккаунта.",
             "in": "path",
             "name": "accountId",
             "required": true,
@@ -867,6 +939,17 @@
     "/api/v1/admin/spending": {
       "get": {
         "operationId": "listSpending",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "application",
+            "schema": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -878,6 +961,27 @@
               }
             },
             "description": "Почасовые расходы за последние 48 часов"
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "listGatewayUsers",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Пользователи Platform, известные Gateway"
           }
         },
         "tags": [

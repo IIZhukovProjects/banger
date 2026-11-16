@@ -6,9 +6,6 @@ from api.identity import identity
 
 class Rooms(Contract):
 
-    async def list_rooms(self, *, context: HTTPContext):
-        return {"rooms": await context.runtime.game.repository.list()}
-
     async def create_room(self, *, context: HTTPContext, body: create_room.Request):
         return await context.runtime.game.create(body)
 

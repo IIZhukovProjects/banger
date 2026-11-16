@@ -507,7 +507,7 @@ export default function Game() {
       )}
       {!isTV && (
         <nav className="room-navigation">
-          <a href="/play">← Все комнаты</a>
+          <a href="/play">← На главную</a>
           <span>
             {s?.room_name || "Комната"} <b>{roomCode}</b>
           </span>
@@ -524,7 +524,7 @@ export default function Game() {
         <section className="room-missing">
           <h1>Комната не найдена</h1>
           <p>Проверь код или собери новую компанию.</p>
-          <a href={isTV ? "/tv" : "/play"}>Все комнаты →</a>
+          <a href={isTV ? "/tv" : "/play"}>На главную →</a>
         </section>
       ) : !s || !meta ? (
         <div className="waiting">

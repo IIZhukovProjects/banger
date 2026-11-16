@@ -83,14 +83,6 @@ class RoomRepository:
                 .on_conflict_do_nothing()
             )
 
-    @observed("backend.repository.list")
-    async def list(self):
-        async with self.database.transaction() as session:
-            result = await session.execute(
-                select(rooms).order_by(rooms.c.created_at.desc())
-            )
-            return [self.aggregate(row).summary() for row in result.mappings()]
-
     async def codes(self):
         async with self.database.transaction() as session:
             return list((await session.execute(select(rooms.c.code))).scalars())
